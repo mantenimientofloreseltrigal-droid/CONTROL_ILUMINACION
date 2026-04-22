@@ -1,12 +1,12 @@
-const CACHE_NAME = 'fotoperiodo-v1';
+const CACHE_NAME = 'fotoperiodo-v1.1';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/css/app.css',
-  '/js/app.js',
-  '/js/db.js',
-  '/js/gps.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './css/app.css',
+  './js/app.js',
+  './js/db.js',
+  './js/gps.js',
+  './manifest.json'
 ];
 
 self.addEventListener('install', e => {
@@ -25,7 +25,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/index.html')))
+    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./index.html')))
   );
 });
 
@@ -36,7 +36,6 @@ self.addEventListener('sync', e => {
 });
 
 async function syncPendingData() {
-  // Se implementa desde app.js usando la API de Background Sync
   const clients = await self.clients.matchAll();
   clients.forEach(client => client.postMessage({ type: 'SYNC_REQUESTED' }));
 }
