@@ -14,10 +14,8 @@
 </head>
 <body>
 
-<!-- OFFLINE BANNER -->
 <div class="offline-banner" id="offline-banner">Sin conexión — los datos se guardan localmente</div>
 
-<!-- ═══ LOGIN ═══ -->
 <div class="login-screen" id="login-screen">
   <div class="login-logo">
     <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
@@ -45,10 +43,8 @@
   </div>
 </div>
 
-<!-- ═══ APP SHELL ═══ -->
 <div class="app-shell" id="app-shell">
 
-  <!-- HEADER -->
   <div class="hdr">
     <div class="hdr-row">
       <div class="hdr-left">
@@ -73,10 +69,8 @@
     </div>
   </div>
 
-  <!-- BODY -->
   <div class="body" id="body-main">
 
-    <!-- PANTALLA: BLOQUES -->
     <div class="screen show" id="sc-inicio">
       <div class="res-row">
         <div class="res-chip"><div class="res-num" style="color:var(--verde-m)" id="cnt-act">0</div><div class="res-lbl">Activos</div></div>
@@ -89,7 +83,6 @@
       <div class="bloques-grid" id="grid-inactivos"></div>
     </div>
 
-    <!-- PANTALLA: DETALLE BLOQUE -->
     <div class="screen" id="sc-detalle">
       <div class="back-bar" onclick="volver()">
         <span class="back-arrow">←</span>
@@ -113,32 +106,48 @@
       <div class="dview" id="dv-hist"></div>
     </div>
 
-    <!-- PANTALLA: ALERTAS -->
     <div class="screen" id="sc-alertas">
       <div class="sec-lbl">Alertas activas</div>
       <div id="alertas-content"></div>
     </div>
 
-    <!-- PANTALLA: RECORRIDO GPS -->
     <div class="screen" id="sc-recorrido">
       <div id="recorrido-content"></div>
     </div>
 
-    <!-- PANTALLA: RADIOMETRÍA GLOBAL -->
     <div class="screen" id="sc-radio-global">
       <div class="sec-lbl">Medición de intensidad lumínica</div>
       <div id="radio-global-content"></div>
     </div>
 
+    <div class="screen" id="sc-historial-global">
+      <div class="sec-lbl">Historial de Lecturas</div>
+      <div class="card" style="margin-bottom: 12px;">
+        <div class="field">
+          <label>Filtrar por Bloque</label>
+          <select id="filtro-bloque" onchange="renderHistorialGlobal()">
+            <option value="">Todos los bloques</option>
+          </select>
+        </div>
+        <div class="field" style="margin-top: 8px;">
+          <label>Filtrar por Fecha</label>
+          <input type="date" id="filtro-fecha" onchange="renderHistorialGlobal()">
+        </div>
+      </div>
+      <div id="historial-global-content"></div>
+    </div>
+
   </div>
 
-  <!-- BOTTOM NAV -->
   <div class="bot-nav">
     <button class="nav-btn sel" id="nb-bloques" onclick="irBloques()">
       <span class="nav-icon">☰</span>Bloques
     </button>
     <button class="nav-btn" id="nb-radio" onclick="irRadioGlobal()">
       <span class="nav-icon">☀</span>Radiom.
+    </button>
+    <button class="nav-btn" id="nb-historial" onclick="irHistorialGlobal()">
+      <span class="nav-icon">📋</span>Historial
     </button>
     <button class="nav-btn" id="nb-recorrido" onclick="irRecorrido()">
       <span class="nav-icon">📍</span>GPS
