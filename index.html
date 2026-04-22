@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0F6E56">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<link rel="stylesheet" href="css/app.css">
+<title>Fotoperiodo — Finca Olas</title>
+</head>
+<body>
+
+<!-- OFFLINE BANNER -->
+<div class="offline-banner" id="offline-banner">Sin conexión — los datos se guardan localmente</div>
+
+<!-- ═══ LOGIN ═══ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-logo">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <circle cx="18" cy="18" r="14" stroke="#fff" stroke-width="2"/>
+      <path d="M18 9v9l6 3" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="18" cy="18" r="2.5" fill="#fff"/>
+    </svg>
+  </div>
+  <div class="login-title">Fotoperiodo</div>
+  <div class="login-sub">Finca Olas · Control de luces</div>
+  <div class="login-card">
+    <div class="login-label">Nombre del operario</div>
+    <input class="login-input" type="text" id="login-nombre" placeholder="Escribe tu nombre..." autocomplete="off">
+    <div class="login-label" style="margin-top:4px">PIN de acceso</div>
+    <div class="login-pin-wrap">
+      <input class="login-pin" type="tel" maxlength="1" inputmode="numeric" oninput="pinInput(this,0)">
+      <input class="login-pin" type="tel" maxlength="1" inputmode="numeric" oninput="pinInput(this,1)">
+      <input class="login-pin" type="tel" maxlength="1" inputmode="numeric" oninput="pinInput(this,2)">
+      <input class="login-pin" type="tel" maxlength="1" inputmode="numeric" oninput="pinInput(this,3)">
+    </div>
+    <div class="login-date" id="login-date"></div>
+    <button class="login-btn" onclick="intentarLogin()">Ingresar</button>
+    <div class="login-err" id="login-err"></div>
+    <div class="login-role">PINs: Operario 1234 · Supervisor 5678 · Gerente 9999</div>
+  </div>
+</div>
+
+<!-- ═══ APP SHELL ═══ -->
+<div class="app-shell" id="app-shell">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-row">
+      <div class="hdr-left">
+        <div class="hdr-title">Fotoperiodo</div>
+        <div class="hdr-sub">Finca Olas · <span id="hdr-semana">Semana —</span></div>
+        <div class="hdr-date" id="hdr-date"></div>
+      </div>
+      <div class="hdr-right">
+        <div class="hdr-user" onclick="cerrarSesion()">
+          <div class="u-circle" id="u-initials">—</div>
+          <span id="u-name">—</span>
+        </div>
+        <div class="gps-chip">
+          <div class="gps-dot" id="gps-dot"></div>
+          <span class="gps-text" id="gps-text">GPS...</span>
+        </div>
+        <div class="sync-chip">
+          <div class="sync-dot" id="sync-dot" style="background:#9FE1CB"></div>
+          <span id="sync-text">Online</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body" id="body-main">
+
+    <!-- PANTALLA: BLOQUES -->
+    <div class="screen show" id="sc-inicio">
+      <div class="res-row">
+        <div class="res-chip"><div class="res-num" style="color:var(--verde-m)" id="cnt-act">0</div><div class="res-lbl">Activos</div></div>
+        <div class="res-chip"><div class="res-num" id="cnt-luc">0</div><div class="res-lbl">Camas en luces</div></div>
+        <div class="res-chip"><div class="res-num" style="color:var(--rojo)" id="cnt-aler">0</div><div class="res-lbl">Alertas</div></div>
+      </div>
+      <div class="sec-lbl">Bloques activos — toca para abrir</div>
+      <div class="bloques-grid" id="grid-activos"></div>
+      <div class="sec-lbl">Sin actividad</div>
+      <div class="bloques-grid" id="grid-inactivos"></div>
+    </div>
+
+    <!-- PANTALLA: DETALLE BLOQUE -->
+    <div class="screen" id="sc-detalle">
+      <div class="back-bar" onclick="volver()">
+        <span class="back-arrow">←</span>
+        <span class="back-title" id="det-title">Bloque</span>
+      </div>
+      <div class="blq-info">
+        <div class="bi-item"><div class="bi-lbl">Naves</div><div class="bi-val" id="d-naves">—</div></div>
+        <div class="bi-item"><div class="bi-lbl">En luces</div><div class="bi-val" style="color:var(--verde-m)" id="d-cl">—</div></div>
+        <div class="bi-item"><div class="bi-lbl">Alertas</div><div class="bi-val" style="color:var(--rojo)" id="d-al">—</div></div>
+        <div class="bi-item"><div class="bi-lbl">Horóm.</div><div class="bi-val" id="d-horos">—</div></div>
+      </div>
+      <div class="dtab-bar">
+        <button class="dtab sel" onclick="switchDT('horometros',this)">Horómetros</button>
+        <button class="dtab" onclick="switchDT('camas',this)">Camas</button>
+        <button class="dtab" onclick="switchDT('radio',this)">Radiometría</button>
+        <button class="dtab" onclick="switchDT('hist',this)">Historial</button>
+      </div>
+      <div class="dview show" id="dv-horometros"></div>
+      <div class="dview" id="dv-camas"></div>
+      <div class="dview" id="dv-radio"></div>
+      <div class="dview" id="dv-hist"></div>
+    </div>
+
+    <!-- PANTALLA: ALERTAS -->
+    <div class="screen" id="sc-alertas">
+      <div class="sec-lbl">Alertas activas</div>
+      <div id="alertas-content"></div>
+    </div>
+
+    <!-- PANTALLA: RECORRIDO GPS -->
+    <div class="screen" id="sc-recorrido">
+      <div id="recorrido-content"></div>
+    </div>
+
+    <!-- PANTALLA: RADIOMETRÍA GLOBAL -->
+    <div class="screen" id="sc-radio-global">
+      <div class="sec-lbl">Medición de intensidad lumínica</div>
+      <div id="radio-global-content"></div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bot-nav">
+    <button class="nav-btn sel" id="nb-bloques" onclick="irBloques()">
+      <span class="nav-icon">☰</span>Bloques
+    </button>
+    <button class="nav-btn" id="nb-radio" onclick="irRadioGlobal()">
+      <span class="nav-icon">☀</span>Radiom.
+    </button>
+    <button class="nav-btn" id="nb-recorrido" onclick="irRecorrido()">
+      <span class="nav-icon">📍</span>GPS
+    </button>
+    <button class="nav-btn" id="nb-alertas" onclick="irAlertas()">
+      <span class="nav-icon">⚠</span>Alertas
+      <span class="n-dot" id="alerta-dot"></span>
+    </button>
+  </div>
+
+</div>
+
+<script src="js/db.js"></script>
+<script src="js/gps.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
