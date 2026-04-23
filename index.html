@@ -3,42 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0F6E56">
+<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="css/app.css">
 <title>Fotoperiodo — Finca Olas</title>
 </head>
 <body>
-<div class="offline-banner" id="offline-banner">Modo Offline — Finca Olas</div>
+
+<div class="offline-banner" id="offline-banner">Sin conexión — los datos se guardan localmente</div>
 
 <div class="login-screen" id="login-screen">
+  <div class="login-logo">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <circle cx="18" cy="18" r="14" stroke="#fff" stroke-width="2"/>
+      <path d="M18 9v9l6 3" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="18" cy="18" r="2.5" fill="#fff"/>
+    </svg>
+  </div>
+  <div class="login-title">Fotoperiodo</div>
+  <div class="login-sub">Finca Olas · Control de luces</div>
   <div class="login-card">
-    <div class="login-title">Fotoperiodo</div>
-    <input class="login-input" type="text" id="login-nombre" placeholder="Nombre Operario">
+    <div class="login-label">Nombre del operario</div>
+    <input class="login-input" type="text" id="login-nombre" placeholder="Escribe tu nombre..." autocomplete="off">
+    <div class="login-label" style="margin-top:4px">PIN de acceso</div>
     <div class="login-pin-wrap">
-      <input class="login-pin" type="tel" maxlength="1" oninput="pinInput(this,0)">
-      <input class="login-pin" type="tel" maxlength="1" oninput="pinInput(this,1)">
-      <input class="login-pin" type="tel" maxlength="1" oninput="pinInput(this,2)">
-      <input class="login-pin" type="tel" maxlength="1" oninput="pinInput(this,3)">
+      <input class="login-pin" type="tel" maxlength="1" inputmode="numeric" oninput="pinInput(this,0)">
+      <input class="login-pin" type="tel" maxlength="1" inputmode="numeric" oninput="pinInput(this,1)">
+      <input class="login-pin" type="tel" maxlength="1" inputmode="numeric" oninput="pinInput(this,2)">
+      <input class="login-pin" type="tel" maxlength="1" inputmode="numeric" oninput="pinInput(this,3)">
     </div>
+    <div class="login-date" id="login-date"></div>
     <button class="login-btn" onclick="intentarLogin()">Ingresar</button>
+    <div class="login-err" id="login-err"></div>
+    <div class="login-role">PINs: Operario 1234 · Supervisor 5678 · Gerente 9999</div>
   </div>
 </div>
 
 <div class="app-shell" id="app-shell">
+
   <div class="hdr">
-    <div class="hdr-title" id="hdr-semana">Semana —</div>
-    <div class="sync-chip"><div class="sync-dot" id="sync-dot"></div><span id="sync-text">Online</span></div>
+    <div class="hdr-row">
+      <div class="hdr-left">
+        <div class="hdr-title">Fotoperiodo</div>
+        <div class="hdr-sub">Finca Olas · <span id="hdr-semana">Semana —</span></div>
+        <div class="hdr-date" id="hdr-date"></div>
+      </div>
+      <div class="hdr-right">
+        <div class="hdr-user" onclick="cerrarSesion()">
+          <div class="u-circle" id="u-initials">—</div>
+          <span id="u-name">—</span>
+        </div>
+        <div class="sync-chip">
+          <div class="sync-dot" id="sync-dot" style="background:#9FE1CB"></div>
+          <span id="sync-text">Online</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="body">
+  <div class="body" id="body-main">
+
     <div class="screen show" id="sc-inicio">
-      <div class="sec-lbl">Bloques con Luces</div>
+      <div class="res-row">
+        <div class="res-chip"><div class="res-num" style="color:var(--verde-m)" id="cnt-act">0</div><div class="res-lbl">Activos</div></div>
+        <div class="res-chip"><div class="res-num" id="cnt-luc">0</div><div class="res-lbl">Camas</div></div>
+      </div>
+      <div class="sec-lbl">Bloques activos — toca para abrir</div>
       <div class="bloques-grid" id="grid-activos"></div>
     </div>
 
     <div class="screen" id="sc-siembra">
       <div class="sec-lbl">Iniciar Luces (Mapa Visual)</div>
       <div class="card">
-        
         <label style="font-weight: bold; color: var(--verde-d);">1. Seleccione el Bloque</label>
         <select id="s-bloque" onchange="renderMapaCamas()" class="login-input" style="margin-top: 5px; background-color: #fff; border: 1px solid var(--borde); width: 100%; height: 45px; font-size: 16px;"></select>
         
@@ -59,19 +95,37 @@
       </div>
     </div>
 
-    <div class="screen" id="sc-historial-global"><div id="historial-global-content"></div></div>
-    
-    <div class="screen" id="sc-detalle"><div id="det-title"></div><div id="dv-horometros"></div></div>
+    <div class="screen" id="sc-detalle">
+      <div class="back-bar" onclick="volver()">
+        <span class="back-arrow">←</span>
+        <span class="back-title" id="det-title">Bloque</span>
+      </div>
+      <div class="dview show" id="dv-horometros"></div>
+    </div>
+
+    <div class="screen" id="sc-historial-global">
+      <div class="sec-lbl">Historial de Lecturas</div>
+      <div id="historial-global-content"></div>
+    </div>
+
   </div>
 
   <div class="bot-nav">
-    <button class="nav-btn sel" id="nb-bloques" onclick="irBloques()"><span>☰</span>Bloques</button>
-    <button class="nav-btn" id="nb-siembra" onclick="irSiembra()"><span>🌱</span>Siembra</button>
-    <button class="nav-btn" id="nb-historial" onclick="irHistorialGlobal()"><span>📋</span>Historial</button>
+    <button class="nav-btn sel" id="nb-bloques" onclick="irBloques()">
+      <span class="nav-icon">☰</span>Bloques
+    </button>
+    <button class="nav-btn" id="nb-siembra" onclick="irSiembra()">
+      <span class="nav-icon">🌱</span>Siembra
+    </button>
+    <button class="nav-btn" id="nb-historial" onclick="irHistorialGlobal()">
+      <span class="nav-icon">📋</span>Historial
+    </button>
   </div>
+
 </div>
 
 <script src="js/db.js"></script>
+<script src="js/gps.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
