@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════
 
 // ── CONFIGURACIÓN DE CONEXIÓN ─────────────
-const SCRIPT_URL = 'TU_URL_DE_APPS_SCRIPT_AQUI'; 
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwlzQHvFFlerxzcAV5MB2V81hNHnRXKO3ibZ0_YiHgXsaC8apR1Yopid3LW2ojbfSEog/exec'; 
 
 // ── CONFIGURACIÓN LOCAL ───────────────────
 const CONFIG = {
