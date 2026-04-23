@@ -35,7 +35,6 @@
     <div class="login-date" id="login-date"></div>
     <button class="login-btn" onclick="intentarLogin()">Ingresar</button>
     <div class="login-err" id="login-err"></div>
-    <div class="login-role">PINs: Operario 1234 · Supervisor 5678 · Gerente 9999</div>
   </div>
 </div>
 
@@ -53,6 +52,10 @@
           <div class="u-circle" id="u-initials">—</div>
           <span id="u-name">—</span>
         </div>
+        <div class="gps-chip">
+          <div class="gps-dot" id="gps-dot"></div>
+          <span class="gps-text" id="gps-text">GPS...</span>
+        </div>
         <div class="sync-chip">
           <div class="sync-dot" id="sync-dot" style="background:#9FE1CB"></div>
           <span id="sync-text">Online</span>
@@ -66,10 +69,12 @@
     <div class="screen show" id="sc-inicio">
       <div class="res-row">
         <div class="res-chip"><div class="res-num" style="color:var(--verde-m)" id="cnt-act">0</div><div class="res-lbl">Activos</div></div>
-        <div class="res-chip"><div class="res-num" id="cnt-luc">0</div><div class="res-lbl">Camas</div></div>
+        <div class="res-chip"><div class="res-num" id="cnt-luc">0</div><div class="res-lbl">Camas en luz</div></div>
       </div>
       <div class="sec-lbl">Bloques activos — toca para abrir</div>
       <div class="bloques-grid" id="grid-activos"></div>
+      <div class="sec-lbl">Sin actividad</div>
+      <div class="bloques-grid" id="grid-inactivos"></div>
     </div>
 
     <div class="screen" id="sc-siembra">
@@ -95,31 +100,60 @@
       </div>
     </div>
 
+    <div class="screen" id="sc-alertas">
+      <div class="sec-lbl" style="display:flex; justify-content:space-between; align-items:center;">
+        Tareas de Campo
+        <span class="badge b-al" id="badge-alertas">0</span>
+      </div>
+      <div id="alertas-content"></div>
+    </div>
+
+    <div class="screen" id="sc-radio-global">
+      <div class="sec-lbl">Medición de intensidad lumínica</div>
+      <div id="radio-global-content"></div>
+    </div>
+
+    <div class="screen" id="sc-recorrido">
+      <div id="recorrido-content"></div>
+    </div>
+
+    <div class="screen" id="sc-historial-global">
+      <div class="sec-lbl">Historial de Lecturas</div>
+      <div class="card" style="margin-bottom: 12px;">
+        <div class="field">
+          <label>Filtrar por Bloque</label>
+          <select id="filtro-bloque" onchange="renderHistorialGlobal()"><option value="">Todos</option></select>
+        </div>
+      </div>
+      <div id="historial-global-content"></div>
+    </div>
+
     <div class="screen" id="sc-detalle">
       <div class="back-bar" onclick="volver()">
         <span class="back-arrow">←</span>
         <span class="back-title" id="det-title">Bloque</span>
       </div>
+      <div class="dtab-bar" style="overflow-x:auto; white-space:nowrap;">
+        <button class="dtab sel" onclick="switchDT('horometros',this)">Horómetros</button>
+        <button class="dtab" onclick="switchDT('camas',this)">Camas</button>
+        <button class="dtab" onclick="switchDT('radio',this)">Radiometría</button>
+        <button class="dtab" onclick="switchDT('hist',this)">Historial</button>
+      </div>
       <div class="dview show" id="dv-horometros"></div>
-    </div>
-
-    <div class="screen" id="sc-historial-global">
-      <div class="sec-lbl">Historial de Lecturas</div>
-      <div id="historial-global-content"></div>
+      <div class="dview" id="dv-camas"></div>
+      <div class="dview" id="dv-radio"></div>
+      <div class="dview" id="dv-hist"></div>
     </div>
 
   </div>
 
-  <div class="bot-nav">
-    <button class="nav-btn sel" id="nb-bloques" onclick="irBloques()">
-      <span class="nav-icon">☰</span>Bloques
-    </button>
-    <button class="nav-btn" id="nb-siembra" onclick="irSiembra()">
-      <span class="nav-icon">🌱</span>Siembra
-    </button>
-    <button class="nav-btn" id="nb-historial" onclick="irHistorialGlobal()">
-      <span class="nav-icon">📋</span>Historial
-    </button>
+  <div class="bot-nav" style="overflow-x: auto; justify-content: flex-start;">
+    <button class="nav-btn sel" id="nb-bloques" onclick="irBloques()"><span class="nav-icon">☰</span>Bloques</button>
+    <button class="nav-btn" id="nb-siembra" onclick="irSiembra()"><span class="nav-icon">🌱</span>Siembra</button>
+    <button class="nav-btn" id="nb-alertas" onclick="irAlertas()"><span class="nav-icon" style="position:relative;">🔔<span class="n-dot" id="alerta-dot" style="display:none;right:-5px;"></span></span>Alertas</button>
+    <button class="nav-btn" id="nb-radio" onclick="irRadioGlobal()"><span class="nav-icon">☀</span>Radiom.</button>
+    <button class="nav-btn" id="nb-recorrido" onclick="irRecorrido()"><span class="nav-icon">📍</span>GPS</button>
+    <button class="nav-btn" id="nb-historial" onclick="irHistorialGlobal()"><span class="nav-icon">📋</span>Historial</button>
   </div>
 
 </div>
