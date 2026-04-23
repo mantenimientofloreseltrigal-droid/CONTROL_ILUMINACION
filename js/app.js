@@ -4,13 +4,14 @@
 // ═══════════════════════════════════════════
 
 // ── CONFIGURACIÓN DE CONEXIÓN ─────────────
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwlzQHvFFlerxzcAV5MB2V81hNHnRXKO3ibZ0_YiHgXsaC8apR1Yopid3LW2ojbfSEog/exec'; // <-- PEGA AQUÍ TU URL
+// ¡ANDRÉS, REEMPLAZA EL TEXTO DE ABAJO CON TU URL REAL DE APPS SCRIPT!
+const SCRIPT_URL = 'TU_URL_AQUI'; 
 
 // ── CONFIGURACIÓN LOCAL ───────────────────
 const CONFIG = {
   finca: 'Finca Olas',
   centro: { lat: 6.122428, lng: -75.437225 },
-  horoMinimo: 1.0,
+  horoMinimo: 2.0,
   radioRangos: {
     'µmol/m²/s': { min: 1.5, max: 80, label: 'PAR' },
     'Lux': { min: 1000, max: 6000, label: 'Lux' },
@@ -377,12 +378,12 @@ function renderHoros(b, info) {
 
     html += '<div class="card ' + cls + '">' +
       '<div class="card-top"><div><div class="card-name">' + h.id + '</div><div class="card-sub">Naves ' + h.naves + ' · ' + h.camasOn.length + ' camas</div></div><span class="badge ' + bcls + '">' + btxt + '</span></div>' +
-      '<div class="turno-chip"><span class="tc-k">Turno</span><span class="tc-v">' + h.turno + '</span><span class="tc-k">Mín.</span><span class="tc-v">' + h.min + ' h</span></div>';
+      '<div class="turno-chip"><span class="tc-k">Turno</span><span class="tc-v">' + h.turno + '</span><span class="tc-k">Mín. Esperado</span><span class="tc-v">' + h.min + ' h</span></div>';
 
     if (diff !== null) {
       const pct = Math.min(100, Math.round(diff / h.min * 50));
       html += '<div class="horo-big" style="color:' + col + '">' + lectHoy.toFixed(1) + ' h</div>' +
-        '<div class="diff-row"><span>Ayer: ' + lectAyer.toFixed(1) + ' h</span><span class="' + dcls + '">' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + ' h hoy</span></div>' +
+        '<div class="diff-row"><span>Ayer: ' + lectAyer.toFixed(1) + ' h</span><span class="' + dcls + '">' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + ' h agregadas</span></div>' +
         '<div class="prog"><div class="prog-f" style="width:' + pct + '%;background:' + col + '"></div></div>';
     } else {
       html += '<div class="horo-big" style="color:var(--ts)">— h</div>' +
@@ -441,7 +442,7 @@ async function guardarHoro(b, hid) {
   if (diff !== null) msgText += diff.toFixed(2) + ' h registradas.';
   else msgText += 'Primera lectura del período.';
   if (!gpsResult.valid) msgText += ' ⚠ GPS fuera del área.';
-  if (esAlerta) msgText += ' ⚠ Alerta: bajo mínimo.';
+  if (esAlerta) msgText += ' ⚠ Alerta: Avance menor a 2 horas.';
 
   msg.textContent = msgText;
   inp.value = '';
@@ -605,7 +606,7 @@ async function guardarRadio(b) {
   trySyncData();
 }
 
-// ── HISTORIAL BLOQUE ──────────────────────
+// ── HISTORIAL BLOQUE (Dentro de detalle) ──
 async function renderHistBloque(b) {
   const lecturas = await dbGetAll('lecturas');
   const del = lecturas.filter(l => l.bloque === b).sort((a, c) => new Date(c.fecha) - new Date(a.fecha)).slice(0, 20);
@@ -625,6 +626,61 @@ async function renderHistBloque(b) {
   }
   html += '</div>';
   document.getElementById('dv-hist').innerHTML = html;
+}
+
+// ── HISTORIAL GLOBAL CON FILTROS ──────────
+async function irHistorialGlobal() {
+  showScreen('sc-historial-global');
+  setNavSel('nb-historial');
+
+  const selectElement = document.getElementById('filtro-bloque');
+  if (selectElement.options.length <= 1) {
+    BLOQUES_ACTIVOS.forEach(b => {
+      const opt = document.createElement('option');
+      opt.value = b;
+      opt.textContent = 'Bloque ' + b;
+      selectElement.appendChild(opt);
+    });
+  }
+  
+  await renderHistorialGlobal();
+}
+
+async function renderHistorialGlobal() {
+  const bFilter = document.getElementById('filtro-bloque').value;
+  const fFilter = document.getElementById('filtro-fecha').value;
+  let lecturas = await dbGetAll('lecturas');
+
+  lecturas.sort((a, c) => new Date(c.fecha) - new Date(a.fecha));
+
+  if (bFilter) {
+    lecturas = lecturas.filter(l => String(l.bloque) === String(bFilter));
+  }
+  if (fFilter) {
+    lecturas = lecturas.filter(l => l.fecha.startsWith(fFilter));
+  }
+
+  let html = '';
+  if (!lecturas.length) {
+    html = '<div class="empty">No se encontraron lecturas para estos filtros.</div>';
+  } else {
+    lecturas.forEach(l => {
+      const f = new Date(l.fecha);
+      const fStr = f.getDate() + '/' + (f.getMonth() + 1) + '/' + f.getFullYear() + ' ' + f.getHours() + ':' + String(f.getMinutes()).padStart(2, '0');
+      html += '<div class="card" style="margin-bottom: 8px;">' +
+        '<div class="card-top" style="margin-bottom: 4px;">' +
+          '<div class="card-name">Bloque ' + l.bloque + ' — ' + l.horometro + '</div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--ts);margin-bottom:4px;">' + fStr + ' · Operario: ' + l.operario + '</div>' +
+        '<div style="font-size:15px;font-weight:800;color:var(--verde-m)">Acumulado: ' + l.lectura.toFixed(1) + ' h</div>';
+      
+      if (l.observacion) {
+        html += '<div style="font-size:11px; margin-top:6px; color:var(--ts); font-style:italic;">Obs: ' + l.observacion + '</div>';
+      }
+      html += '</div>';
+    });
+  }
+  document.getElementById('historial-global-content').innerHTML = html;
 }
 
 // ── ALERTAS ───────────────────────────────
@@ -724,8 +780,9 @@ function abrirBloqueRadio(b) {
 
 // ── REGISTER SERVICE WORKER ───────────────
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(reg => {
-    console.log('SW registrado');
+  // ATENCIÓN: Se quitó el '/' inicial para que funcione en GitHub Pages
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    console.log('SW registrado correctamente.');
     reg.addEventListener('message', e => {
       if (e.data?.type === 'SYNC_REQUESTED') trySyncData();
     });
